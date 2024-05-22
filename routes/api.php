@@ -1,9 +1,11 @@
 <?php
 
-use App\Http\Controllers\ProductsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\RegistersController;
+use App\Http\Controllers\Auth\LoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,17 +18,30 @@ use App\Http\Controllers\UserController;
 |
 */
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
+Route::group([
+    'middleware' => 'guest:api',
+    'prefix' => 'auth',
+], function () {
+    Route::post('login', [LoginController::class, 'login']);
+    Route::post('register', [RegistersController::class, 'register']);
+});
 
 Route::get('users', [UserController::class, 'index']);
-Route::group([
-    'prefix' => 'products',
-], function() {
-    Route::get('index', [ProductsController::class, 'index']);
-    Route::post('create', [ProductsController::class, 'create']);
-    Route::get('edit/{id}', [ProductsController::class, 'edit']);
-    Route::put('update/{id}', [ProductsController::class, 'update']);
-    Route::delete('delete/{id}', [ProductsController::class, 'delete']);
+// Route::group([
+//     'prefix' => 'products',
+// ], function() {
+//     Route::get('index', [ProductsController::class, 'index']);
+//     Route::post('create', [ProductsController::class, 'create']);
+//     Route::get('edit/{id}', [ProductsController::class, 'edit']);
+//     Route::put('update/{id}', [ProductsController::class, 'update']);
+//     Route::delete('delete/{id}', [ProductsController::class, 'delete']);
+// });
+Route::middleware(['checklogin'])->group(function () {
+    Route::prefix('products')->group(function() {
+        Route::get('index', [ProductsController::class, 'index']);
+        Route::post('create', [ProductsController::class, 'create']);
+        Route::get('edit/{id}', [ProductsController::class, 'edit']);
+        Route::put('update/{id}', [ProductsController::class, 'update']);
+        Route::delete('delete/{id}', [ProductsController::class, 'delete']);
+    });
 });
